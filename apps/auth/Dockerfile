@@ -32,7 +32,7 @@ RUN npm install
 COPY --from=builder /app/dist ./dist
 
 # (선택) .env 파일 등 필요하면 복사
-# COPY .env ./
+COPY .env ./
 
 # 앱 실행 (main.js 실행)
 CMD ["node", "dist/main.js"]
