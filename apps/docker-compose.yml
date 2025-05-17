@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/mydatabase
+    # 필요시 volumes, restart 정책 추가 가능
+
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    depends_on:
+      - auth-db
+    environment:
+      MONGO_URI: mongodb://mongo:27017/mydatabase
+    # 필요시 volumes, restart 정책 추가 가능
+
+  event:
+    build:
+      context: ./event
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3000"
+    depends_on:
+      - event-db
+    environment:
+      MONGO_URI: mongodb://mongo:27017/mydatabase
+    # 필요시 volumes, restart 정책 추가 가능
+
+  auth-db:
+    image: mongo:6.0
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/auth-db
+
+  event-db:
+    image: mongo:6.0
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/event-db
+
+volumes:
+  mongo-data:
+
