@@ -5,9 +5,18 @@ import { LoggerModule } from './logger/logger.module';
 import { APP_FILTER } from '@nestjs/core';
 import { GlobalExceptionFilter } from './common/error/exception-filter';
 import { ApplicationExceptionFilter } from './common/error/application-exception-filter';
+import { JwtModule } from './jwt/jwt.module';
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
-  imports: [LoggerModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    LoggerModule,
+    JwtModule
+  ],
   controllers: [AppController],
   providers: [
     {
