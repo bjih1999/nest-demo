@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { importJWK, JWK, SignJWT } from 'jose';
 import { ConfigService } from '@nestjs/config';
+import { Role } from "../../role/role";
 
 @Injectable()
 export class JwtProvider {
@@ -21,10 +22,11 @@ export class JwtProvider {
         {
           kid: this.jwkPrivateKey.kid,
           kty: this.jwkPrivateKey.kty,
-          use: 'sig',
-          alg: 'EdDSA',
-          crv: 'Ed25519',
+          use: this.jwkPrivateKey.use,
+          alg: this.jwkPrivateKey.alg,
+          crv: this.jwkPrivateKey.crv,
           x: this.jwkPrivateKey.x,
+          y: this.jwkPrivateKey.y,
         },
       ],
     };
