@@ -27,9 +27,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   validate(payload: JwtPayload): AccountInfo {
     // 토큰 검증 성공 후 payload 리턴
-
     return {
-      userId: payload.sub,
+      userId: payload.aud,
       role: Role[payload.role],
     };
   }
