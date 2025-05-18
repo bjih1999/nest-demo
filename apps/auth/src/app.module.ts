@@ -7,6 +7,8 @@ import { GlobalExceptionFilter } from './common/error/exception-filter';
 import { ApplicationExceptionFilter } from './common/error/application-exception-filter';
 import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from "@nestjs/config";
+import { AuthModule } from './auth/auth.module';
+import { MongooseModule } from "@nestjs/mongoose";
 
 @Module({
   imports: [
@@ -14,8 +16,10 @@ import { ConfigModule } from "@nestjs/config";
       isGlobal: true,
       envFilePath: '.env',
     }),
+    MongooseModule.forRoot('mongodb://auth-db/user'),
     LoggerModule,
-    JwtModule
+    JwtModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [

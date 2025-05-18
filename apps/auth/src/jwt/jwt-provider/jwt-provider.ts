@@ -15,6 +15,20 @@ export class JwtProvider {
     this.encodedJwtPrivateKeyPromise = importJWK(this.jwkPrivateKey, 'EdDSA');
   }
 
+  public async generateToken(userId: string, role: Role): Promise<string> {
+    return await new SignJWT({
+      userId,
+      role,
+    })
+      .setProtectedHeader({
+        alg: this.jwkPrivateKey.alg,
+        typ: 'JWT',
+      })
+      .setAudience(userId)
+      .setExpirationTime('100h')
+      .sign(await this.encodedJwtPrivateKeyPromise);
+  }
+
   public getJwks(): { keys: JWK[] } {
 
     return {

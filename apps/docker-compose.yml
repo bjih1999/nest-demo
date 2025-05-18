@@ -37,17 +37,25 @@ services:
 
   auth-db:
     image: mongo:6.0
+    container_name: auth-db
     restart: unless-stopped
     ports:
       - "27017:27017"
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=auth_admin  # 기본 사용자 이름
+#      - MONGO_INITDB_ROOT_PASSWORD=auth_admin_password  # 기본 사용자 비밀번호
     volumes:
       - mongo-data:/data/auth-db
 
   event-db:
     image: mongo:6.0
+    container_name: event-db
     restart: unless-stopped
     ports:
       - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=event_admin  # 기본 사용자 이름
+      - MONGO_INITDB_ROOT_PASSWORD=event_admin_password  # 기본 사용자 비밀번호
     volumes:
       - mongo-data:/data/event-db
 

@@ -10,8 +10,14 @@ interface ErrorContent {
 export const errorCode: Record<string, ErrorContent> = {
   INVALID_INPUT_ERROR: {
     name: 'INVALID_INPUT_ERROR',
-    code: '100',
+    code: 'A100',
     message: '잘못된 입력값입니다.',
+    httpStatusCode: HttpStatus.BAD_REQUEST,
+  },
+  DUPLICATE_USER_ID: {
+    name: 'DUPLICATE_USER_ID',
+    message: '이미 존재하는 사용자 ID입니다.',
+    code: 'A101',
     httpStatusCode: HttpStatus.BAD_REQUEST,
   },
   GATEWAY_SERVER_ERROR: {
