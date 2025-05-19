@@ -2,29 +2,31 @@ import { Injectable } from '@nestjs/common';
 import { UserDto } from "../response/user.dto";
 import { UserRegisterRequestDto } from "../request/user-regiser.request.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { User } from "../../db/schemas/user.schema";
+import { User, UserDocument } from "../../db/schemas/user.schema";
 import { Model } from "mongoose";
 import { ApplicationException } from "../../common/error/application-exception";
 import { errorCode } from "../../common/error/error-code";
 import * as crypto from 'crypto';
+import * as bcrypt from 'bcrypt';
+import { UserUpdateRequestDto } from './request/user-update.request.dto';
 
 @Injectable()
 export class AuthAdminService {
 
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {
   }
 
   async register(userRegisterRequestDto: UserRegisterRequestDto): Promise<UserDto> {
     const { userId } = userRegisterRequestDto;
-    const existUser = !!await this.userModel.find({ userId });
+    const existUser = await this.userModel.findOne({ userId });
     if (existUser) {
       throw new ApplicationException(errorCode.DUPLICATE_USER_ID);
     }
 
-    const { salt, hashedData } = this.hashPassword(userRegisterRequestDto.password);
+    const { salt, hashedPassword } = await this.hashPassword(userRegisterRequestDto.password);
     const user = new this.userModel({
       userId,
-      password: hashedData,
+      password: hashedPassword,
       role: userRegisterRequestDto.role,
       salt,
     });
@@ -36,37 +38,46 @@ export class AuthAdminService {
     };
   }
 
-  private hashPassword(password: string): { salt: string; hashedData: string } {
-    // Salt 생성 (기본적으로 16바이트 길이의 임의 문자열)
+  private async hashPassword(password: string): Promise<{ salt: string; hashedPassword: string }> {
+    // Salt 생성
     const salt = crypto.randomBytes(16).toString('hex');
+    
+    // bcrypt를 사용해 비밀번호 해싱 (salt 포함)
+    const hashedPassword = await bcrypt.hash(password + salt, 10);
 
-    // 데이터와 salt를 결합하여 해싱
-    const hash = crypto.createHash('sha512');
-    hash.update(password + salt);  // data + salt를 결합해서 해싱
-    const hashedData = hash.digest('hex');  // 'hex' 형식으로 해싱된 결과 반환
-
-    // salt와 함께 해시 값 반환 (salt는 나중에 사용해야 하므로 저장 필요)
     return {
       salt,
-      hashedData,
+      hashedPassword,
     };
   }
 
-  async updateUser(userId: string, UserUpdateRequestDto): Promise<UserDto> {
-
-    const existUser = await this.userModel.findById(userId);
+  async updateUser(userId: string, userUpdateRequestDto: UserUpdateRequestDto): Promise<UserDto> {
+    const existUser = await this.userModel.findOne({ userId });
     if (!existUser) {
-      throw new ApplicationException(errorCode.INVALID_INPUT_ERROR);
+      throw new ApplicationException(errorCode.USER_NOT_FOUND);
     }
 
-    const { password, role } = UserUpdateRequestDto;
+    const updateData: any = {};
 
-    const updatedUser = await this.userModel.findByIdAndUpdate(userId, {
-      password: password ? this.hashPassword(password).hashedData : existUser.password,
-      salt,
-      role: role ? role : existUser.role,
-    }, { new: true });
+    if (userUpdateRequestDto.password) {
+      const { salt, hashedPassword } = await this.hashPassword(userUpdateRequestDto.password);
+      updateData.password = hashedPassword;
+      updateData.salt = salt;
+    }
 
-    return ;
+    if (userUpdateRequestDto.role) {
+      updateData.role = userUpdateRequestDto.role;
+    }
+
+    const updatedUser = await this.userModel.findOneAndUpdate(
+      { userId },
+      updateData,
+      { new: true }
+    );
+
+    return {
+      userId: updatedUser.userId,
+      role: updatedUser.role,
+    };
   }
 }

@@ -5,6 +5,7 @@ import { JwtProvider } from "./jwt-provider/jwt-provider";
 
 @Module({
   controllers: [JwtController],
-  providers: [JwtService, JwtProvider]
+  providers: [JwtService, JwtProvider],
+  exports: [JwtProvider]
 })
 export class JwtModule {}

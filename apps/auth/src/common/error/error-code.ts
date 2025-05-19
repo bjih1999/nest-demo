@@ -20,11 +20,11 @@ export const errorCode: Record<string, ErrorContent> = {
     code: 'A101',
     httpStatusCode: HttpStatus.BAD_REQUEST,
   },
-  GATEWAY_SERVER_ERROR: {
-    name: 'INTERNAL_SERVER_ERROR',
-    message: '서버 내부 오류입니다.',
-    code: '900',
-    httpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED: {
+    name: 'UNAUTHORIZED',
+    message: '인증되지 않은 사용자입니다.',
+    code: 'A102',
+    httpStatusCode: HttpStatus.UNAUTHORIZED,
   },
   INTERNAL_SERVER_ERROR: {
     name: 'INTERNAL_SERVER_ERROR',

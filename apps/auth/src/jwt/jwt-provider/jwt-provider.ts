@@ -25,7 +25,7 @@ export class JwtProvider {
         typ: 'JWT',
       })
       .setAudience(userId)
-      .setExpirationTime('100h')
+      .setExpirationTime('30m')
       .sign(await this.encodedJwtPrivateKeyPromise);
   }
 
