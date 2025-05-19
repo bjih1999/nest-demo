@@ -54,7 +54,7 @@ export class GatewayController {
 
   @All('/auth/user/*')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('user')
+  @Roles('user', 'admin')
   proxyAuthUserRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
     this.proxy.on('proxyReq', (proxyReq, req) => {
       proxyReq.setHeader('userId', account.userId);
@@ -72,26 +72,26 @@ export class GatewayController {
     });
   }
 
-  @All('/event/admin/*')
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('admin')
-  proxyEventAdminRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
-
-    this.proxy.on('proxyReq', (proxyReq, req) => {
-      proxyReq.setHeader('userId', account.userId);
-      proxyReq.setHeader('role', account.role);
-    });
-
-    this.proxy.web(req, res, { target: this.TARGET_SERVERS.event }, (err) => {
-      console.error('Proxy error:', err);
-      if (!res.headersSent) {
-        res.status(500).json({
-          message: '서버 내부 오류입니다.',
-          errorCode: errorCode.INTERNAL_SERVER_ERROR.code,
-        });
-      }
-    });
-  }
+  // @All('/event/admin/*')
+  // @UseGuards(JwtAuthGuard, RoleGuard)
+  // @Roles('admin')
+  // proxyEventAdminRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
+  //
+  //   this.proxy.on('proxyReq', (proxyReq, req) => {
+  //     proxyReq.setHeader('userId', account.userId);
+  //     proxyReq.setHeader('role', account.role);
+  //   });
+  //
+  //   this.proxy.web(req, res, { target: this.TARGET_SERVERS.event }, (err) => {
+  //     console.error('Proxy error:', err);
+  //     if (!res.headersSent) {
+  //       res.status(500).json({
+  //         message: '서버 내부 오류입니다.',
+  //         errorCode: errorCode.INTERNAL_SERVER_ERROR.code,
+  //       });
+  //     }
+  //   });
+  // }
 
   @All('/event/operator/*')
   @UseGuards(JwtAuthGuard, RoleGuard)
