@@ -11,8 +11,6 @@ import { Role } from "../role/role";
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(private readonly configService: ConfigService) {
     const authServerUrl = configService.get<string>('AUTH_SERVER_URL');
-    const temp = ExtractJwt.fromAuthHeaderAsBearerToken();
-    console.log('temp', temp);
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKeyProvider: jwksRsa.passportJwtSecret({

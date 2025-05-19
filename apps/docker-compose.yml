@@ -20,7 +20,7 @@ services:
     depends_on:
       - auth-db
     environment:
-      MONGO_URI: mongodb://mongo:27017/mydatabase
+      MONGO_URI: mongodb://auth_admin:auth_admin_password@auth-db:27017/auth?authSource=admin
     # 필요시 volumes, restart 정책 추가 가능
 
   event:
@@ -37,17 +37,27 @@ services:
 
   auth-db:
     image: mongo:6.0
+    container_name: auth-db
     restart: unless-stopped
     ports:
       - "27017:27017"
+    environment:
+      MONGODB_USER: admin
+      MONGODB_DATABASE: user
+      MONGODB_PASS: auth_admin_password
     volumes:
       - mongo-data:/data/auth-db
 
   event-db:
     image: mongo:6.0
+    container_name: event-db
     restart: unless-stopped
     ports:
       - "27018:27017"
+    environment:
+      MONGODB_USER: admin
+      MONGODB_DATABASE: user
+      MONGODB_PASS: event_admin_password
     volumes:
       - mongo-data:/data/event-db
 
