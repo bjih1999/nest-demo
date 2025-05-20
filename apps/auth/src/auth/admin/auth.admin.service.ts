@@ -18,7 +18,7 @@ export class AuthAdminService {
 
   async register(userRegisterRequestDto: UserRegisterRequestDto): Promise<UserDto> {
     const { userId } = userRegisterRequestDto;
-    const existUser = await this.userModel.findOne({ userId });
+    const existUser = this.userModel.findOne({ userId }).lean();
     if (existUser) {
       throw new ApplicationException(errorCode.DUPLICATE_USER_ID);
     }
@@ -52,7 +52,7 @@ export class AuthAdminService {
   }
 
   async updateUser(userId: string, userUpdateRequestDto: UserUpdateRequestDto): Promise<UserDto> {
-    const existUser = await this.userModel.findOne({ userId });
+    const existUser = await this.userModel.findOne({ userId }).lean();
     if (!existUser) {
       throw new ApplicationException(errorCode.USER_NOT_FOUND);
     }

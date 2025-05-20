@@ -7,6 +7,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    depends_on:
+      - auth
+      - event
     environment:
       MONGO_URI: mongodb://mongo:27017/mydatabase
     # 필요시 volumes, restart 정책 추가 가능
@@ -15,8 +18,10 @@ services:
     build:
       context: ./auth
       dockerfile: Dockerfile
-    ports:
-      - "3001:3000"
+    # 모든 요청이 게이트웨이를 통해 들어오게 되므로, 불필요한 포트 노출을 막음
+    # 동일 docker network에 존재하는 서비스는 컨테이너 이름으로 접근 가능하기 때문
+#    ports:
+#      - "3001:3000"
     depends_on:
       - auth-db
     # 필요시 volumes, restart 정책 추가 가능
@@ -25,8 +30,10 @@ services:
     build:
       context: ./event
       dockerfile: Dockerfile
-    ports:
-      - "3002:3000"
+    # 모든 요청이 게이트웨이를 통해 들어오게 되므로, 불필요한 포트 노출을 막음
+    # 동일 docker network에 존재하는 서비스는 컨테이너 이름으로 접근 가능하기 때문
+#    ports:
+#      - "3002:3000"
     depends_on:
       - event-db
     # 필요시 volumes, restart 정책 추가 가능
@@ -35,6 +42,7 @@ services:
     image: mongo:6.0
     container_name: auth-db
     restart: unless-stopped
+    # 실제 환경에서는 port를 노출시키지 않는 것이 보안상 유리. 개발 및 검수를 용이하게 하기 위해 포트를 노출하도록 설정
     ports:
       - "27017:27017"
     environment:
@@ -48,6 +56,7 @@ services:
     image: mongo:6.0
     container_name: event-db
     restart: unless-stopped
+    # 실제 환경에서는 port를 노출시키지 않는 것이 보안상 유리. 개발 및 검수를 용이하게 하기 위해 포트를 노출하도록 설정
     ports:
       - "27018:27017"
     environment:

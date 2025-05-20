@@ -19,6 +19,8 @@ export class RoleGuard implements CanActivate {
     const user = request.user; // JWT 토큰에서 인증된 사용자 정보
 
     // 역할을 비교하여 권한을 체크
+    console.log('roles', roles);
+    console.log('user', user);
     const hasRole = roles.some(role => user.role == role);
     if (!hasRole) {
       throw new ApplicationException(errorCode.UNAUTHORIZED);

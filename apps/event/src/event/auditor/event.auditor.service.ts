@@ -40,7 +40,7 @@ export class EventAuditorService {
     }
 
     const [requests, total] = await Promise.all([
-      this.rewardRequestModel.find(filter).skip(skip).limit(pageSize),
+      this.rewardRequestModel.find(filter).skip(skip).limit(pageSize).lean(),
       this.rewardRequestModel.countDocuments(filter),
     ]);
 
