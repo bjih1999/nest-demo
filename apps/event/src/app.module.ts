@@ -15,9 +15,7 @@ import { EventModule } from './event/event.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    MongooseModule.forRoot(
-      'mongodb://admin:event_admin_password@event-db:27017/event',
-    ),
+    MongooseModule.forRoot(process.env.MONGO_DB_URL),
     LoggerModule,
     EventModule,
   ],
