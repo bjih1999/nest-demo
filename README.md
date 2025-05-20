@@ -40,14 +40,14 @@
 
 1. **프로젝트 클론**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/bjih1999/nest-demo/
    cd nest-demo
    ```
 
 2. **Docker Compose로 전체 서비스 실행**
    ```bash
    cd apps
-   docker-compose up -d
+   docker compose up --build
    ```
 
    이 명령어는 다음 서비스들을 시작합니다:
