@@ -9,9 +9,10 @@ WORKDIR /app
 
 # package.json과 package-lock.json (또는 yarn.lock) 복사
 COPY package.json ./
+COPY package-lock.json ./
 
 # 의존성 설치
-RUN npm install
+RUN npm ci
 
 # 소스 코드 복사
 COPY . .

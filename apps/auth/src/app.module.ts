@@ -16,7 +16,7 @@ import { MongooseModule } from "@nestjs/mongoose";
       isGlobal: true,
       envFilePath: '.env',
     }),
-    MongooseModule.forRoot('mongodb://auth-db:27017/user'),
+    MongooseModule.forRoot(process.env.MONGO_DB_URL),
     LoggerModule,
     JwtModule,
     AuthModule,
