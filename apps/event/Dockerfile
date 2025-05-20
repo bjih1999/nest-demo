@@ -8,10 +8,12 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # package.json과 package-lock.json (또는 yarn.lock) 복사
-COPY package*.json ./
+COPY package.json ./
+COPY package-lock.json ./
+
 
 # 의존성 설치
-RUN npm install
+RUN npm ci
 
 # 소스 코드 복사
 COPY . .
@@ -31,8 +33,7 @@ RUN npm install
 # 빌드된 결과물을 복사
 COPY --from=builder /app/dist ./dist
 
-# (선택) .env 파일 등 필요하면 복사
-# COPY .env ./
+COPY .env ./
 
 # 앱 실행 (main.js 실행)
 CMD ["node", "dist/main.js"]
