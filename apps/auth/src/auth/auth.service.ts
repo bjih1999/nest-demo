@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   async login(loginRequestDto: LoginRequestDto): Promise<LoginResponseDto> {
-    const user = await this.userModel.findOne({ userId: loginRequestDto.userId });
+    const user = await this.userModel.findOne({ userId: loginRequestDto.userId }).lean();
     
     if (!user) {
       throw new ApplicationException(errorCode.UNAUTHORIZED);

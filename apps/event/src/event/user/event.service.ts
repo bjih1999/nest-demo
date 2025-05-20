@@ -93,7 +93,7 @@ export class EventService {
     userId: string,
   ): Promise<RewardRequestResponseDto> {
     // 이벤트 정보 조회
-    const event = await this.eventModel.findById(eventId);
+    const event = await this.eventModel.findById(eventId).lean();
     if (!event) {
       throw new ApplicationException(errorCode.EVENT_NOT_FOUND);
     }
@@ -128,7 +128,7 @@ export class EventService {
           failed: false,
           requestedAt: new Date(),
         });
-        
+
         await rewardRequest.save();
         success = true;
         failed = false;
@@ -206,7 +206,7 @@ export class EventService {
     const skip = (page - 1) * pageSize;
 
     const [requests, total] = await Promise.all([
-      this.rewardRequestModel.find({ userId }).skip(skip).limit(pageSize),
+      this.rewardRequestModel.find({ userId }).skip(skip).limit(pageSize).lean(),
       this.rewardRequestModel.countDocuments({ userId }),
     ]);
 

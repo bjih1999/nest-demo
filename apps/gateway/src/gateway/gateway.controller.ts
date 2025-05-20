@@ -1,4 +1,4 @@
-import { Controller, Req, Res, All, UseGuards } from "@nestjs/common";
+import {Controller, Req, Res, All, UseGuards, RawBodyRequest} from "@nestjs/common";
 import { Request, Response } from 'express';
 import { errorCode } from '../common/error/error-code';
 import Server, { createProxyServer } from "http-proxy";
@@ -26,21 +26,20 @@ export class GatewayController {
       },
     );
 
+    this.proxy.on('proxyReq', (proxyReq, req: RawBodyRequest<Request>) => {
+      if (req.rawBody) {
+        proxyReq.write(req.rawBody);
+      }
+    });
+
     this.TARGET_SERVERS = {
       auth: configService.get<string>('AUTH_SERVER_URL'),
       event: configService.get<string>('EVENT_SERVER_URL'),
     };
   }
 
-  @All('/auth/admin/*')
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.ADMIN)
-  proxyAuthAdminRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
-
-    this.proxy.on('proxyReq', (proxyReq, req) => {
-      proxyReq.setHeader('userId', account.userId);
-      proxyReq.setHeader('role', account.role);
-    });
+  @All('/auth/login')
+  proxyAuthUserRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
 
     this.proxy.web(req, res, { target: this.TARGET_SERVERS.auth }, (err) => {
       console.error('Proxy error:', err);
@@ -53,16 +52,25 @@ export class GatewayController {
     });
   }
 
-  @All('/auth/user/*')
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.USER, Role.AUDITOR, Role.OPERATOR, Role.ADMIN)
-  proxyAuthUserRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
-    this.proxy.on('proxyReq', (proxyReq, req) => {
-      proxyReq.setHeader('userId', account.userId);
-      proxyReq.setHeader('role', account.role);
-    });
+  /**
+   * gateway단에서 인증을 거친 후, 각 서버로 요청을 전달합니다.
+   * gateway에서 특정 API의 권한과 어느 서버로 요청을 보내야 하는지 확인할 수 있도록 엔드포인트의 경로에 권한과 서버 이름을 포함시켰습니다.
+   * ex. auth/admin/* -> auth 서버로 요청을 보내고, admin 권한이 필요함
+   */
 
-    this.proxy.web(req, res, { target: this.TARGET_SERVERS.auth }, (err) => {
+
+  @All('/auth/admin/*')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.ADMIN)
+  proxyAuthAdminRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
+
+    this.proxy.web(req, res, {
+      target: this.TARGET_SERVERS.auth,
+      headers: {
+        userId: account.userId,
+        role: account.role,
+      },
+    }, (err) => {
       console.error('Proxy error:', err);
       if (!res.headersSent) {
         res.status(500).json({
@@ -78,12 +86,13 @@ export class GatewayController {
   @Roles(Role.OPERATOR, Role.ADMIN)
   proxyEventOperatorRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
 
-    this.proxy.on('proxyReq', (proxyReq, req) => {
-      proxyReq.setHeader('userId', account.userId);
-      proxyReq.setHeader('role', account.role);
-    });
-
-    this.proxy.web(req, res, { target: this.TARGET_SERVERS.event }, (err) => {
+    this.proxy.web(req, res, {
+      target: this.TARGET_SERVERS.event,
+      headers: {
+        userId: account.userId,
+        role: account.role,
+      },
+    }, (err) => {
       console.error('Proxy error:', err);
       if (!res.headersSent) {
         res.status(500).json({
@@ -99,12 +108,13 @@ export class GatewayController {
   @Roles(Role.AUDITOR, Role.OPERATOR, Role.ADMIN)
   proxyEventAuditorRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
 
-    this.proxy.on('proxyReq', (proxyReq, req) => {
-      proxyReq.setHeader('userId', account.userId);
-      proxyReq.setHeader('role', account.role);
-    });
-
-    this.proxy.web(req, res, { target: this.TARGET_SERVERS.event }, (err) => {
+    this.proxy.web(req, res, {
+      target: this.TARGET_SERVERS.event,
+      headers: {
+        userId: account.userId,
+        role: account.role,
+      },
+    }, (err) => {
       console.error('Proxy error:', err);
       if (!res.headersSent) {
         res.status(500).json({
@@ -120,12 +130,13 @@ export class GatewayController {
   @Roles(Role.USER, Role.AUDITOR, Role.OPERATOR, Role.ADMIN)
   proxyEventUserRequest(@Req() req: Request, @Res() res: Response, @GetAccount() account: AccountInfo) {
 
-    this.proxy.on('proxyReq', (proxyReq, req) => {
-      proxyReq.setHeader('userId', account.userId);
-      proxyReq.setHeader('role', account.role);
-    });
-
-    this.proxy.web(req, res, { target: this.TARGET_SERVERS.event }, (err) => {
+    this.proxy.web(req, res, {
+      target: this.TARGET_SERVERS.event,
+      headers: {
+        userId: account.userId,
+        role: account.role,
+      },
+    }, (err) => {
       console.error('Proxy error:', err);
       if (!res.headersSent) {
         res.status(500).json({

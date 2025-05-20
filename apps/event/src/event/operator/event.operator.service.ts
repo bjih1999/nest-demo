@@ -19,7 +19,7 @@ export class EventOperatorService {
     const event = new this.eventModel({
       title: createEventDto.title,
       description: createEventDto.description,
-      conditions: createEventDto.conditions.map(condition => ({
+      conditions: createEventDto.conditions.map((condition) => ({
         activityType: condition.activityType,
         targetCount: condition.targetCount,
         startDate: condition.startDate,
@@ -37,7 +37,7 @@ export class EventOperatorService {
       id: event._id.toString(),
       title: event.title,
       description: event.description,
-      conditions: event.conditions.map(condition => ({
+      conditions: event.conditions.map((condition) => ({
         activityType: condition.activityType,
         targetCount: condition.targetCount,
         startDate: condition.startDate,
